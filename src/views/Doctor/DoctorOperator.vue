@@ -730,7 +730,7 @@ input {
 
     <header class="header1">
       <div class="header-left">
-        <img src="@/assets/logo.jpg" alt="Logo" class="logo" />
+        <img src="../../assets/logo.jpg" alt="Logo" class="logo" />
         <div>济康同行</div>
       </div>
       <div class="header-right">
@@ -854,7 +854,7 @@ input {
         </div>
         <div class="item">
           <div class="item-name" @click="drawer3 = !drawer3">
-            <img src="@/assets/icon9.png" alt="" class="icon" />
+            <img src="../../assets/icon9.png" alt="" class="icon" />
             门诊模板
           </div>
           <el-collapse-transition>
@@ -935,7 +935,7 @@ input {
             :id="'item' + index"
           >
             <div class="line"></div>
-            <img src="@/assets/icon11.png" alt="" />
+            <img src="../../assets/icon11.png" alt="" />
             <div class="user-info">
               <div>{{ pt.number }}号：{{ pt.name }}</div>
               <div
