@@ -22,16 +22,6 @@
       </div>
     </va-card> -->
 
-
-
-
-
-
-
-
-
-
-
     <va-card class="card">
       <div class="card-content">
         <div style="margin-left:50px;font-size: xx-large;font-weight: bold;"><span>手动报到</span></div>
@@ -291,11 +281,7 @@ export default defineComponent({
   },
 });
 
-
-
 </script>
-
-
 
 
 
@@ -306,16 +292,9 @@ export default defineComponent({
 
 
 
-
-
-
 .va-table-responsive {
   overflow: auto;
 }
-
-
-
-
 
 
 .el-tag--danger {
@@ -334,24 +313,13 @@ export default defineComponent({
   border-radius: 50px;
 }
 
-
-
-
-
-
-
 .card-content {
   margin: 30px;
 }
 
-
-
-
-
 .va-input {
   box-shadow: 4px 4px 4px #aaa;
 }
-
 
 
 * {
