@@ -165,7 +165,63 @@ export default {
     },
 
     // 确认订单
+    confirm() {
+      if (this.tableItems[this.selectedRow]["状态"] == "已支付") {
+        alert("该订单已支付！");
+        return;
+      }
+      /* 改变订单状态 */
+      fetch("http://localhost:8080/api/Prescription/UpdatePaystate"
+        + "?prescriptionId=" + this.orderId.toString(), {
+        method: 'PUT',
+        redirect: 'follow'
+      }).then(response => response.text())
+        .then(result => {
+          console.log(result)
+          /* 获取所有药品 */
+          fetch("http://localhost:8080/api/Stock/GetAllStocks", {
+            method: 'GET',
+            redirect: 'follow'
+          }).then(response => response.text())
+            .then(result => {
+              result = JSON.parse(result);
+              for (let i in this.modalItems) {
+                let flag = false;
+                for (let j = 0; j < result.length; ++j) {
+                  if (result[j].medicineName == this.modalItems[i]["药品名"]
+                    && result[j].medicineAmount >= this.modalItems[i]["数量"]) {
 
+                    /* 减少药品数量 */
+                    fetch("http://localhost:8080/api/Medicine/UpdateStock"
+                      + "?medicineName=" + result[j].medicineName
+                      + "&newAmount=" + (result[j].medicineAmount - this.modalItems[i]["数量"]).toString()
+                      + "&manufacturer=" + result[j].manufacturer
+                      + "&productionDate=" + result[j].productionDate
+                      + "&administratorId=" + sessionStorage.getItem('userID')
+                      + "&patientId=" + this.tableItems[this.selectedRow]["就诊人ID"], {
+                      method: 'PUT',
+                      redirect: 'follow'
+                    }).then(response => response.text())
+                      .then(result => console.assert(result == "Medicine stock and purchase record updated successfully."))
+                      .catch(error => console.log('error', error));
+                    /* 减少药品数量 */
+
+                    flag = true;
+                    break;
+                  }
+                }
+                console.assert(flag);
+              }
+            })
+            .catch(error => console.log('error', error));
+          /* 获取所有药品 */
+          alert("确认成功！");
+          this.getTable(); // 刷新表格
+          this.showModal = false; // 关闭弹窗
+        })
+        .catch(error => console.log('error', error));
+      /* 改变订单状态 */
+    },
 
     // 取消操作
     cancel() {
