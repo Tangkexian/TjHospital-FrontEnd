@@ -1,0 +1,826 @@
+<template style="font-family: AliRegular;">
+  <!-- <chat-box v-if="chatShown" style="z-index: 999;"></chat-box> -->
+  <va-modal class="noteModal" v-model="lNoteShown" hide-default-actions="true">
+    <div class="leave-form">
+      <h1>准假信息</h1>
+      <p>{{ userID }} 请假成功！</p>
+      <p>请假起止时间为：</p>
+      <p>{{ leaveStart }} ~ {{ leaveEnd }}</p>
+      <img class="stamp" src="../../assets/zhang.png" alt="盖章图片">
+    </div>
+  </va-modal>
+  <va-modal v-model="chatShown" hide-default-actions="true">
+    <div style="width: 500px; height: 600px;">
+      <div style="overflow: auto; height: 80%;">
+        <div class="chat-box">
+          <table class="chat-box" style="margin-left: 5%; height: 80%; width: 90%;">
+            <tr v-for="(message, index) in chatMessages" :key="index">
+              <div
+                :class="{ 'chatBox': true, 'chatBox-left': message.senderType !== 0, 'chatBox-right': message.senderType === 0 }">
+                <td>
+                  {{ message.message }}
+                </td>
+              </div>
+              <br>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <va-input v-model="newMessage" class="mb-6" type="textarea" :min-rows="3" style="width:100%;">
+
+      </va-input>
+      <va-button style="width: 100%;" @click="sendMessage()">
+        发送
+      </va-button>
+    </div>
+  </va-modal>
+  <div style="margin-top:80px">
+    <div class="row justify-center" cols="12" sm="6" md="4" lg="3" v-for="(record, index) in displayedAllRecords "
+      :key="index">
+      <va-modal v-model="modalShown[realIndex(index)]" class="feedbackBox" hide-default-actions>
+        <div style="text-align: center;">
+          <span v-for="star in 5" :key="star" class="star"
+            :class="{ active: feedbacks[realIndex(index)].hoverRating >= star || feedbacks[realIndex(index)].selectedRating >= star }"
+            @mouseover="setHoverRating(realIndex(index), star)" @mouseout="setHoverRating(realIndex(index), 0)"
+            @click.stop="setSelectedRating(realIndex(index), star)">
+            ★
+          </span>
+        </div>
+        <p style="height: 10px;"></p>
+        <va-input v-model="feedbacks[realIndex(index)].comment" class="mb-6" type="textarea" placeholder="请在此输入您的评论..."
+          :min-rows="3" :max-rows="3" @click.stop />
+        <!-- <textarea v-model="feedbacks[realIndex(index)].comment" placeholder="请在此输入您的评论..." @click.stop></textarea> -->
+        <p>
+          <va-button style="width: 100%;" @click="submitFeedback(realIndex(index))">
+            提交
+          </va-button>
+        </p>
+      </va-modal>
+      <va-card class="record-card" elevation="10" color="#ECF0F1">
+        <!-- 第一行 -->
+        <!-- (标题) -->
+        <va-card-title class="first-row">
+          <div class="row justify-start"><span class="title-status"
+              :style="{ color: record.status === 0 ? '#3498db' : record.status === -1 ? '#e74c3c' : '#2451c0' }">{{
+                record.status === 0 ? '待就诊' : record.status === -1 ? '已取消' : '已就诊' }}</span>
+          </div>
+          <!-- 在待就诊状态应有比较当前时间与预约时间，判断预约过号的逻辑，为了演示不增加 -->
+
+          <va-button round icon="close" v-if="record.status == 0" color="#f6f2c8" border-color="#9d7013"
+            text-color="#9d7013" @click="cancelAppointment(record, realIndex(index))">
+            取消
+          </va-button>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="title-date">{{ record.date }}</span>
+        </va-card-title>
+
+        <!-- 第二行 -->
+        <!-- <va-card-content class="info-row" v-if="record.status === 1">
+          <div class="row justify-start">
+            <span class="flex flex-col xs3">预约号码:</span>
+            <span class="flex flex-col xs3">{{
+              record.appointmentNumber
+            }}</span>
+          </div>
+        </va-card-content> -->
+
+        <!-- 第三行 -->
+        <va-card-content class="info-row">
+          <div class="row justify-start">
+            <span class="flex flex-col xs3">就诊医生:</span>
+            <span class="flex flex-col xs3">{{ record.doctor }}</span>
+          </div>
+        </va-card-content>
+        <!-- 第四行 -->
+        <va-card-content class="info-row">
+          <div class="row justify-start">
+            <span class="flex flex-col xs3">预约时间段:</span>
+            <span class="flex flex-col xs3">{{ this.periodDict[record.appointmentTime] }}</span>
+          </div>
+        </va-card-content>
+        <!-- 第五行 -->
+        <!-- <va-card-content class="info-row">
+          <div class="row justify-start">
+            <span class="flex flex-col xs3">前方等待人数:</span>
+            <span class="flex flex-col xs3">{{ record.waitingCount }}</span>
+          </div>
+        </va-card-content> -->
+
+
+        <!-- 按钮，如果是已经取消或者已经就诊完就不能取消挂号 -->
+        <va-card-content class="button-row">
+          <va-button :disabled="record.status != 1" color="primary" class="button" @click="viewPrescription(record)">
+            查看处方
+          </va-button>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+          <!--          <va-button :disabled="record.status != 1 || record.payState == 1" color="primary" class="button"-->
+          <!--            @click="payBill(record)">-->
+          <!--            支付账单-->
+          <!--          </va-button>-->
+
+          <va-button :disabled="record.status != 1 || feedbacks[realIndex(index)].isSubmitted == true" color="primary"
+            class="feedback-button" @click="modalShown[realIndex(index)] = !modalShown[realIndex(index)]">
+            反馈评价
+          </va-button>
+
+          <!-- <va-button color="primary" class="button" :disabled="record.status != 1"
+            @click="showChat(allRecords[realIndex(index)].diagnoseId, allRecords[realIndex(index)].doctorID)">
+            在线复诊
+          </va-button> -->
+          <va-popover placement="left" trigger="click"
+            v-if="!shortlNoteList.includes(allRecords[realIndex(index)].diagnoseId) || record.status != 1">
+            <!-- <va-button :disabled="record.status != 1 || leaveNotes[realIndex(index)].isSubmitted == true" color="primary"
+              class="feedback-button">
+              提交假条
+            </va-button> -->
+            <template #body>
+              <div>
+                <input v-model="leaveNotes[realIndex(index)].leaveNoteInput" type="number" placeholder="请输入请假天数"
+                  @click.stop />
+              </div>
+              <div>
+                <va-button color="primary" @click="submitExcuse(realIndex(index))">
+                  提交假条
+                </va-button>
+              </div>
+            </template>
+          </va-popover>
+          <va-button v-else color="success" @click="showLeaveNote(allRecords[realIndex(index)].diagnoseId)"
+            class="feedback-button">
+            查看假条
+          </va-button>
+
+        </va-card-content>
+
+      </va-card>
+    </div>
+    <div class="pagination">
+      <va-pagination v-model="currentPage" :pages="totalPages" @change="changePage" />
+    </div>
+  </div>
+</template>
+
+<script>
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { myFont } from "../../assets/font/myfont-normal"
+// import ChatBox from "./ChatBox.vue";
+
+export default {
+  el: '#app',
+  data() {
+
+    return {
+      allRecords: [],
+      feedbacks: [],
+      leaveNotes: [],
+      currentPage: 1,
+      itemsPerPage: 6,
+      periodDict: {},
+      // 显示反馈评价窗口
+      modalShown: [],
+      // 显示聊天窗口
+      chatShown: false,
+      // 聊天记录
+      chatMessages: [
+        { userId: 1, text: '你好' },
+        { userId: 2, text: '你好' },
+        { userId: 1, text: '是中国人就说阿涅亚塞哟' },
+      ],
+      // 聊天框内的信息
+      newMessage: "",
+
+      // hcr添加：患者ID
+      userID: sessionStorage.getItem('userID'),
+
+      // 当前诊断记录ID
+      curRecordId: "",
+
+      // 当前诊断记录医生ID
+      curDoctorId: "",
+
+      leaveNoteList: [],
+
+      shortlNoteList: [],
+
+      lNoteShown: false,
+
+      leaveStart: "",
+
+      leaveEnd: "",
+    };
+  },
+  computed:
+  {
+    displayedAllRecords() {
+      // 通过调整起始索引和结束索引，我们可以选择要在当前页面显示的特定人员。
+      // 这样，当用户切换页面时，我们可以动态地更新要显示的人员列表
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.allRecords.slice(startIndex, endIndex);
+    },
+    totalPages() {
+      return Math.ceil(this.allRecords.length / this.itemsPerPage);
+    },
+  },
+
+  mounted() {
+    for (let i = 1; i <= 3; i++) {
+      this.periodDict[i] = `${i + 7}:00-${i + 8}:00`;
+    }
+    for (let i = 4; i <= 7; i++) {
+      this.periodDict[i] = `${i + 9}:00-${i + 10}:00`;
+    }
+    this.getData();
+    this.startDataRefreshTimer();
+  },
+  methods: {
+    instantToDate(instant) {
+      let date = new Date(Number(instant * 1000));
+      let formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
+      return formattedDate;
+    },
+
+    getData() {
+      this.$Axios.get(`/api/Registration/Patient/${this.userID}`)
+        .then((response) => {
+          // console.log(response.data);
+          const newData = response.data; // 获取响应数据
+          // 将新数据转化为 record 对象并添加到 allRecords 数组中
+          this.allRecords = newData.map(item => ({
+            patient: item.patient.name,
+            // patientID: this.userID,
+            patientID: this.userID,
+            patientGender: item.patient.gender ? "男" : "女",
+            patientBirth: item.patient.birthDate,
+            doctor: item.doctor.name,
+            doctorID: item.doctor.doctorId,
+            date: this.instantToDate(item.appointmentTime),
+            time: item.orderTime,
+            appointmentTime: item.period,
+            waitingCount: item.queueCount,
+            status: item.state,
+            diagnoseId: `${this.instantToDate(item.appointmentTime).replaceAll("-", "")}${this.userID}${item.doctor.doctorId}${item.period}`,
+            payState: item.payState,
+          }));
+          this.allRecords.sort((record1, record2) => {
+            const date1 = new Date(record1.time);
+            const date2 = new Date(record2.time);
+            return date2 - date1; // 比较结果决定排序顺序
+          });
+          this.feedbacks = this.allRecords.map(item => ({
+            diagnoseId: item.diagnoseId,
+            hoverRating: 0,
+            selectedRating: 0,
+            comment: '',
+            isSubmitted: false
+          }));
+          this.leaveNotes = this.allRecords.map(item => ({
+            diagnoseId: item.diagnoseId,
+            leaveNoteInput: '',
+            isSubmitted: false
+          }));
+          for (let i = 0; i < this.allRecords.length; i++) {
+            this.modalShown[i] = false;
+          }
+          //   this.$Axios.get('/api/Leave/leaveApplications', {
+          //   params: {
+          //     PatientId: this.userID
+          //   }
+          // })
+          //   .then((response) => {
+          //     for (let idData of response.data) {
+          //       let tmp = idData.substring(0, idData.length - 3);
+          //       let selectedObject = this.leaveNotes.find(leaveNote => leaveNote.diagnoseId === tmp);
+          //       if (selectedObject) {
+          //         selectedObject.isSubmitted = true;
+          //       }
+          //     }
+          //   })
+          //   .catch((error) => {
+          //     console.log(error);
+          //   });
+          this.$Axios.get('/api/Comment/whether', {
+            params: {
+              patientId: this.userID
+            }
+          })
+            .then((response) => {
+              if (response.data == "No records found for this patientId.") return;
+              for (let idData of response.data) {
+                let selectedObject = this.feedbacks.find(feedback => feedback.diagnoseId === idData);
+                if (selectedObject) {
+                  selectedObject.isSubmitted = true;
+                }
+              }
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      //   this.$Axios.get('/api/Leave/leaveApplications', {
+      //   params: {
+      //     patientId: this.userID
+      //   }
+      // })
+      //   .then((response) => {
+      //     var data = response.data;
+      //     for (var i = 0; i < data.length; i++) {
+      //       var recordId = data[i].substring(0, 21);
+      //       this.shortlNoteList.push(recordId);
+      //       this.leaveNoteList.push(data[i]);
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.error(error);
+      //   });
+      console.log("list: ", this.leaveNoteList);
+    },
+    startDataRefreshTimer() {
+      setInterval(() => {
+        this.getData(); // 获取最新数据
+      }, 20000); // 定时器每隔20s轮询
+    },
+    payBill(record) {
+      this.$Axios.get('/api/DiagnosedHistory/payBill', {
+        params: {
+          diagnosedId: record.diagnoseId
+        }
+      })
+        .then((response) => {
+          // Create a new window
+          // console.log(response);
+          const newWindow = window.open("", "_blank");
+          const htmlString = response.data;
+          // // Write the fetched HTML content into the new window
+          newWindow.document.write(htmlString);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    realIndex(index) {
+      return index + (this.currentPage - 1) * this.itemsPerPage;
+    },
+    cancelAppointment(record, index) {
+      const inputModel = {
+        "patientId": record.patientID,
+        "doctorId": record.doctorID,
+        "time": record.date + "T00:00:00",
+        "period": record.appointmentTime,
+      };
+      this.$Axios.put('/api/Registration/cancel', inputModel)
+        .then(response => {
+          if (response.status === 200) {
+            this.allRecords[index].status = -1; // Update status to '已取消'
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    viewPrescription(record) {
+      console.log(record.diagnoseId);
+      this.$Axios.get('/api/Prescription/GetPrescription', {
+        params: {
+          diagnoseId: record.diagnoseId
+        }
+      })
+        .then((response) => {
+          let prescriptionData = response.data;
+          const PAGE_MARGIN = 5;
+          const doc = new jsPDF({
+            unit: "mm",
+            format: "a6",
+            orientation: "landscape", // 页面方向，portrait: 纵向，landscape: 横向
+          });
+          doc.addFileToVFS("MyFont.ttf", myFont);
+          doc.addFont("MyFont.ttf", "MyFont", "normal");
+          doc.setFont("MyFont");
+          var penHeight = PAGE_MARGIN;
+          const pageWidth = doc.internal.pageSize.width; // 获取页面宽度
+          const pageHeight = doc.internal.pageSize.height; // 获取页面宽度
+          // 添加标题
+          doc.setFontSize(12);
+          const text = "同济大学校医院";
+          const textWidth = doc.getTextDimensions(text).w; // 获取文本的宽度
+          const centerX = (pageWidth - textWidth) / 2; // 计算居中位置的 x 坐标
+          penHeight += doc.getTextDimensions(text).h;
+          doc.text(text, centerX, penHeight); // 在居中位置显示文本
+          // 添加副标题
+          doc.setFontSize(10);
+          const subtitle = "门 诊 处 方";
+          const subtitleTextWidth = doc.getTextDimensions(subtitle).w;
+          const subtitleCenterX = (pageWidth - subtitleTextWidth) / 2;
+          penHeight += doc.getTextDimensions(subtitle).h + 2;
+          doc.text(subtitle, subtitleCenterX, penHeight); //  
+          // 在副标题下方绘制一条直线
+          doc.setLineWidth(0.2); // 设置直线的宽度
+          var lineY = penHeight + doc.getTextDimensions(subtitle).h + 6; // 计算直线的纵坐标
+          doc.line(8, lineY, pageWidth - 8, lineY); // 绘制直线，横坐标范围：20 到 pageWidth - 20
+          // 打印基本信息
+          doc.setFontSize(6);
+          const birthYear = new Date(record.patientBirth).getFullYear();
+          const currentYear = new Date().getFullYear();
+          const basics = `姓名：${record.patient}    性别：${record.patientGender}    年龄：${currentYear - birthYear}    患者编号：${record.patientID}    科室：${prescriptionData.doctor.secondaryDepartment}    就诊时间：${this.instantToDate(prescriptionData.diagnose.diagnoseTime)}`;
+          const basicsStart = 25 - doc.getTextDimensions(subtitle).w / 2;
+          penHeight += doc.getTextDimensions(basics).h + PAGE_MARGIN;
+          doc.text(basics, basicsStart, penHeight);
+          console.log(prescriptionData);
+          // 打印表格
+          const printData = [
+            [`诊断记录：  ${record.diagnoseId}`],
+            [`诊断医生：  ${prescriptionData.doctor.name}`],
+            [`既往病史：  ${prescriptionData.diagnose.anamnesis}`],
+            [`体征检查：  ${prescriptionData.diagnose.sign}`],
+            [`初步诊断：  ${prescriptionData.diagnose.clinicdia}`],
+          ];
+          doc.autoTable({
+            theme: 'plain',
+            startY: penHeight + PAGE_MARGIN,
+            body: printData,
+            styles: {
+              font: 'MyFont',
+              fontSize: 7,
+              cellPadding: { top: 0, right: 2, bottom: 1, left: 0 }
+            },
+          });
+          penHeight += 35;
+          var tmpMedicines = prescriptionData.medicines;
+          if (tmpMedicines == undefined) tmpMedicines = [];
+          console.log(tmpMedicines);
+          // 打印基本信息
+          doc.setFontSize(9);
+          const info = "处方：";
+          doc.text(info, PAGE_MARGIN + 9, penHeight + 1);
+          // 打印药品
+          const medicineData = [
+            ["药品名称", "药品价格(元)", "药品数量(盒)", "服用剂量", "服用建议"],
+          ];
+          tmpMedicines.forEach(medicine => {
+            console.log(medicine);
+            const medicationName = medicine.medicineName;
+            const medicinePrice = medicine.medicinePrice;
+            const medicineQuantity = medicine.quantity;
+            const medicineDose = medicine.medicationInstruction.split("#")[0];
+            const medicineAdvice = medicine.medicationInstruction.split("#")[1];
+            medicineData.push([medicationName, medicinePrice, medicineQuantity, medicineDose, medicineAdvice]);
+          });
+          medicineData.push([`总价：${prescriptionData.totalPrice}`]);
+          // console.log(medicineData);
+
+          const totalWidth = doc.internal.pageSize.width - PAGE_MARGIN * 2; // 获取页面宽度
+          const columnWidth1 = totalWidth * 0.14; // 前四列宽度各14%
+          const columnWidth5 = totalWidth * 0.40; // 第五列宽度40%
+          doc.autoTable({
+            theme: 'plain',
+            startY: penHeight + PAGE_MARGIN,
+            body: medicineData,
+            styles: {
+              font: 'MyFont',
+              fontSize: 6,
+              cellPadding: { top: 0, right: 4, bottom: 8 / (tmpMedicines.length + 1), left: 0 }
+            },
+            columnStyles: {
+              0: { columnWidth: columnWidth1 },
+              1: { columnWidth: columnWidth1 },
+              2: { columnWidth: columnWidth1 },
+              3: { columnWidth: columnWidth1 },
+              4: { columnWidth: columnWidth5 },
+            },
+          });
+          // 打印时间
+          doc.setFontSize(6);
+          const currentDate = new Date(); // 获取当前时间
+          const formattedTime = `打印时间：${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}:${currentDate.getSeconds().toString().padStart(2, '0')}`;
+          const timeTextWidth = doc.getTextDimensions(formattedTime).w;
+          const timeX = pageWidth - PAGE_MARGIN * 2 - timeTextWidth; // 计算时间文本的横坐标，使其在右侧对齐
+          const finalHeight = pageHeight - doc.getTextDimensions(formattedTime).h;
+          doc.text(formattedTime, timeX, finalHeight);
+          doc.line(8, finalHeight - 3, pageWidth - 8, finalHeight - 3); // 绘制直线，横坐标范围：20 到 pageWidth - 20
+          // 加入印章
+          const imgData = require("../../assets/zhang.png");
+          doc.addImage({
+            imageData: imgData,
+            x: pageWidth - 35,
+            y: pageHeight - 32,
+            width: 25,
+            height: 25,
+            format: "png"
+          });
+
+          const blob = doc.output('blob');
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank'); // 在新窗口中打开 PDF 文件
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    changePage(page) {
+      // 切换页面
+      this.currentPage = page;
+    },
+    setHoverRating(recordIndex, rating) {
+      if (this.feedbacks[recordIndex]) {
+        this.feedbacks[recordIndex].hoverRating = rating;
+      }
+    },
+    setSelectedRating(recordIndex, rating) {
+      if (this.feedbacks[recordIndex]) {
+        this.feedbacks[recordIndex].selectedRating = rating;
+      }
+    },
+    submitFeedback(recordIndex) {
+      const feedback = this.feedbacks[recordIndex];
+      if (feedback) {
+        const inputData = {
+          diagnoseId: this.allRecords[recordIndex].diagnoseId,
+          evaluation: feedback.comment,
+          treatmentScore: feedback.selectedRating,
+        };
+        // console.log("Feedback inputData");
+        this.$Axios.post('/api/Comment/CreateFeedback', inputData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => {
+            console.log('POST request successful:', response.data);
+            feedback.isSubmitted = true;
+          })
+          .catch(error => {
+            console.error(error);
+          });
+        // console.log(`Index为 ${recordIndex} 的记录选了 ${feedback.selectedRating} 颗星星，评论内容：${feedback.comment}`);
+        this.modalShown[recordIndex] = false;
+      }
+    },
+    submitExcuse(recordIndex) {
+      const leaveNote = this.leaveNotes[recordIndex];
+      if (leaveNote) {
+        const inputData = {
+          diagnosedId: this.allRecords[recordIndex].diagnoseId,
+          leaveDays: leaveNote.leaveNoteInput,
+        };
+        console.log("leaveNote inputData");
+        console.log(inputData);
+        this.$Axios.post('/api/Leave', null, { params: inputData })
+          .then(response => {
+            console.log('POST request successful:', response.data);
+            leaveNote.isSubmitted = true;
+          })
+          .catch(error => {
+            console.error(error);
+          });
+        console.log(`Index为 ${recordIndex} 的记录提交了 ${leaveNote.leaveNoteInput}的请假天数`);
+      }
+    },
+    getMessages(recordId = "-1") {
+      this.$Axios({
+        method: 'GET',
+        url: '/api/Chatrecord/getChatRecord',
+        params: {
+          RecordId: recordId === "-1" ? this.curRecordId : recordId,
+        }
+      })
+        .then((response) => {
+          this.chatMessages = [];
+          for (let i = 0; i < response.data.length; i++) {
+            this.chatMessages.push(response.data[i]);
+          }
+        })
+        .catch((error) => {
+          this.chatMessages = [];
+          console.error(error);
+        })
+    },
+    showChat(id, doctorId) {
+      this.chatShown = true;
+      this.curRecordId = id;
+      this.curDoctorId = doctorId;
+      this.getMessages(id);
+    },
+    sendMessage() {
+      this.chatMessages.push({ message: this.newMessage, senderType: 0 });
+
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      var raw = JSON.stringify({
+        "recordId": this.curRecordId,
+        "doctorId": this.curDoctorId,
+        "patientId": this.userID,
+        "message": this.newMessage,
+        "senderType": 0,
+        "timeStamp": new Date().toISOString(),
+        "readStatus": 0
+      });
+      // console.log(raw);
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+      };
+
+      fetch("http://124.223.143.21/api/Chatrecord/addChatRecord", requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
+      this.$Axios.post("", this.message)
+        .then(response => {
+          console.warn(response);
+          this.getMessages();
+          this.newMessage = "";
+
+        })
+        .catch(error => {
+          console.log(error);
+          this.newMessage = "";
+        });
+
+    },
+    showLeaveNote(recordId) {
+      this.lNoteShown = true;
+      console.log("rec: " + recordId);
+      for (var i = 0; i < this.leaveNoteList.length; i++) {
+        if (this.leaveNoteList[i].substring(0, 21) == recordId) {
+          this.leaveStart = this.leaveNoteList[i].slice(0, 8);
+          var startDate = new Date(
+            this.leaveStart.substring(0, 4), // 年
+            parseInt(this.leaveStart.substring(4, 6)) - 1, // 月份（注意月份是从0开始的，所以需要减1）
+            this.leaveStart.substring(6, 8) // 日
+          );
+
+          this.leaveStart = startDate.toLocaleDateString('zh-CN');
+          var duration = parseInt(this.leaveNoteList[i].substring(21, 24));
+          startDate.setDate(startDate.getDate() + duration);
+          this.leaveEnd = startDate.toLocaleDateString('zh-CN');
+        }
+      }
+      // console.log("start date: " + this.leaveStart);
+      // console.log("end date: " + this.leaveEnd);
+    },
+  },
+
+  // components: { ChatBox }
+};
+</script>
+
+<style scoped>
+* {
+  font-family: AliRegular;
+  --va-font-family: AliRegular;
+  /* 应用字体 */
+}
+
+.record-card {
+  margin-bottom: 20px;
+  border-radius: 10px;
+  width: 70%;
+}
+
+.info-row {
+  margin-bottom: 5px;
+}
+
+.info-label {
+  width: 100px;
+  display: inline-block;
+}
+
+.info-value {
+  display: inline-block;
+}
+
+.button-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.button {
+  width: 35%;
+}
+
+.feedback-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 35%;
+}
+
+.record-card .first-row .title-status {
+  font-size: 20px;
+}
+
+.record-card .first-row .title-date {
+  font-size: 14px;
+}
+
+.record-card .first-row .title-dept {
+  font-size: 16px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.star {
+  font-size: 24px;
+  cursor: pointer;
+  color: #ddd;
+  /* 默认的星星颜色 */
+  transition: color 0.3s;
+}
+
+.star.active {
+  color: gold;
+  /* 亮起的星星颜色 */
+}
+
+.feedbackBox {
+  box-shadow: none;
+}
+
+.chatBox {
+  position: relative;
+  /* margin:12px; */
+  padding: 5px 8px;
+  word-break: break-all;
+  background: #ffffff;
+  border: 1px solid #989898;
+  border-radius: 5px;
+  max-width: 180px;
+}
+
+.chatBox-left {
+  float: left;
+}
+
+.chatBox-right {
+  float: right;
+}
+
+.chatBox-left::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: -20px;
+  top: 5px;
+  border: 10px solid;
+  border-color: transparent #002fb0 transparent transparent;
+  float: left;
+}
+
+.chatBox-right::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  right: -20px;
+  top: 5px;
+  border: 10px solid;
+  border-color: transparent transparent transparent #002fb0;
+  float: right;
+}
+</style>
+<style id="leaveNote" type="text/css">
+.leave-form {
+  width: 400px;
+  height: 120px;
+  margin: 0 auto;
+  border: 2px solid #000;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+p {
+  /* text-align: justify; */
+  margin-bottom: 8px;
+}
+
+.stamp {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  width: 80px;
+  /* 调整盖章图片的大小 */
+}
+</style>
