@@ -189,4 +189,8 @@ export default {
     margin-bottom: 5px;
   }
 }
+<<<<<<< HEAD
 </style>
+=======
+</style>
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492

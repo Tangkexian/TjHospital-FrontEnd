@@ -1,3 +1,13 @@
+<!--
+一个搜索框组件
+creator:刘一飞
+editor:刘一飞
+使用手册：
+  参考views\Nurse\TakeOrder\TakeOrderApply.vue
+  父组件需要传入 input_data 参数，代表着为用户提供输入建议的所有内容，
+  
+该组件自带 搜索按钮，点击后emit事件SearchBoxValueToParent，传送数据为用户当前在输入框中输入的内容，可在父组件监听该事件，获取数据
+-->
 <template>
   <el-row>
     <!-- 搜索框部分 -->
