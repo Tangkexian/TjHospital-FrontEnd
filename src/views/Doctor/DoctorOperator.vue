@@ -544,8 +544,13 @@ input {
 }
 
 #test {
+<<<<<<< HEAD
+  background: "input";
+  color: "input";
+=======
   //background: "input";
   //color: "input";
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
   border: none;
 }
 
@@ -730,7 +735,11 @@ input {
 
     <header class="header1">
       <div class="header-left">
+<<<<<<< HEAD
+        <img src="@/assets/logo.jpg" alt="Logo" class="logo" />
+=======
         <img src="../../assets/logo.jpg" alt="Logo" class="logo" />
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
         <div>济康同行</div>
       </div>
       <div class="header-right">
@@ -854,7 +863,11 @@ input {
         </div>
         <div class="item">
           <div class="item-name" @click="drawer3 = !drawer3">
+<<<<<<< HEAD
+            <img src="@/assets/icon9.png" alt="" class="icon" />
+=======
             <img src="../../assets/icon9.png" alt="" class="icon" />
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
             门诊模板
           </div>
           <el-collapse-transition>
@@ -935,7 +948,11 @@ input {
             :id="'item' + index"
           >
             <div class="line"></div>
+<<<<<<< HEAD
+            <img src="@/assets/icon11.png" alt="" />
+=======
             <img src="../../assets/icon11.png" alt="" />
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
             <div class="user-info">
               <div>{{ pt.number }}号：{{ pt.name }}</div>
               <div

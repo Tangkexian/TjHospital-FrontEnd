@@ -10,18 +10,26 @@
   <div id="main-page">
     <!-- <va-card class="card">
       <div class="card-content">
+<<<<<<< HEAD
+=======
 
 
 
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
         <div style="margin-left:50px;font-size: xx-large;font-weight: bold;"><span>扫码报到</span></div>
         <div style="margin:50px;"><va-input outline placeholder="请扫码" class="mb-6" id="scannedData"
             v-model="scannedDataInput" @keydown.enter="sendData()" /></div>
         <div class="my-8"><va-divider /></div>
+<<<<<<< HEAD
+      </div>
+    </va-card> -->
+=======
 
 
       </div>
     </va-card> -->
 
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
     <va-card class="card">
       <div class="card-content">
         <div style="margin-left:50px;font-size: xx-large;font-weight: bold;"><span>手动报到</span></div>
@@ -281,22 +289,34 @@ export default defineComponent({
   },
 });
 
+<<<<<<< HEAD
+
+
+</script>
+=======
 </script>
 
 
 
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
 <style scoped>
 #main-page {
   margin-top: 5%;
 }
 
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
 .va-table-responsive {
   overflow: auto;
 }
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
 .el-tag--danger {
   background-color: red;
   /* 设置背景色为红色 */
@@ -304,11 +324,14 @@ export default defineComponent({
   /* 设置文本颜色为白色 */
 }
 
+<<<<<<< HEAD
+=======
 
 
 
 
 
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
 .card {
   border-radius: 50px;
 }
@@ -321,7 +344,10 @@ export default defineComponent({
   box-shadow: 4px 4px 4px #aaa;
 }
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
 * {
   /* 应用字体 */
   font-family: AliRegular;
