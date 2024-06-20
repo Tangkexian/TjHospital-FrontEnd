@@ -9,6 +9,7 @@
 
   <div id="main-page">
     <!-- <va-card class="card">
+
       <div class="card-content">
 <<<<<<< HEAD
 =======
@@ -27,6 +28,7 @@
 
 
       </div>
+
     </va-card> -->
 
 >>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
@@ -93,12 +95,15 @@ import { defineComponent } from "vue";
 export default defineComponent({
   data() {
     return {
-      scannedDataInput: '', // 用于绑定输入框的数据
+      // 用于绑定输入框的数据
+      scannedDataInput: '',
       patientId: '',
       CheckinInfo: [],
-      uploadSuccess: false, // 控制是否显示上传成功消息
+      // 控制是否显示上传成功消息
+      uploadSuccess: false,
       showModal: false,
-      alertText: '', // 用于显示提示消息
+      // 用于显示提示消息
+      alertText: '',
     };
   },
   methods: {
@@ -110,14 +115,17 @@ export default defineComponent({
       console.log(scannedData);
 
       // 检查是否有扫描到数据
+
       if (scannedData) {
         // 假设每个字段的长度是固定的
+
         const patientId = scannedData.substring(0, 7);
         const doctorId = scannedData.substring(7, 12);
         const time = scannedData.substring(12, 22);
         const period = scannedData.substring(22);
 
         // 构建请求数据对象
+
         const data = {
           patientId,
           doctorId,
@@ -126,6 +134,7 @@ export default defineComponent({
         };
 
         // 发送请求
+
         axios
           .put("http://localhost:8080/api/Registration/Checkin", data)
           .then((response) => {
@@ -147,6 +156,7 @@ export default defineComponent({
           });
 
         // 清空输入框
+
         this.scannedDataInput = '';
       } else {
         alert('请先扫描数据！');
@@ -158,17 +168,21 @@ export default defineComponent({
     },
 
     //获取今日对应id用户的全部挂号信息
+
     FetchData() {
       // 发送请求
+
       axios
         .get("http://localhost:8080/api/Registration/OfflineCheckin?", {
           params: {
             patientId: this.patientId,
           },
         })
-        .then((response) => { // 使用箭头函数
+          // 使用箭头函数
+        .then((response) => {
           this.CheckinInfo = [];
-          for (let i = 0; i < response.data.length; ++i) { // 修改这里的response.data.length
+          for (let i = 0; i < response.data.length; ++i) {
+            // 修改这里的response.data.length
             const checkinStatus = response.data[i].checkin === 1 ? '已报到' : (response.data[i].checkin === 0 ? '未报到' : '其他状态'); // 其他状态可自行定义
             const periodValue = response.data[i].period;
             let periodText = '';
@@ -225,9 +239,11 @@ export default defineComponent({
     },
 
     //手动报到
+
     manual(index) {
       console.log(this.CheckinInfo[index]);
       // 构建请求数据对象
+
       let periodText = this.CheckinInfo[index].period
       let period = 0;
       switch (periodText) {
@@ -265,6 +281,7 @@ export default defineComponent({
       };
       console.log(data);
       // 发送请求
+
       axios
         .put("http://localhost:8080/api/Registration/Checkin", data)
         .then((response) => {
@@ -327,6 +344,13 @@ export default defineComponent({
 <<<<<<< HEAD
 =======
 
+.el-tag--dangerous {
+  background-color: red;
+  /* 设置背景色为红色 */
+  color: white;
+  /* 设置文本颜色为白色 */
+  color: blueviolet;
+}
 
 
 

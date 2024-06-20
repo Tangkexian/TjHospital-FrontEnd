@@ -5,13 +5,19 @@
 
     <el-collapse-transition>
       <div v-if="showInfo" class="info-content">
+
         <div id="info">
+
           <div id="info-avatar">
+
             <el-avatar :size="70" :src="src1"></el-avatar>
+
             <div class="name1">{{ name }}</div>
+
           </div>
 
           <div class="info-container" v-if="getIcon !== 'edit'">
+
             <va-input
               v-model="administratorId"
               readonly
@@ -20,6 +26,7 @@
               background="rgb(255,255,255)"
               ><template #prepend> 编号： </template></va-input
             >
+
             <va-input
               v-model.lazy="name"
               placeholder="请输入你的姓名"
@@ -28,6 +35,7 @@
               :readonly="readonly"
               ><template #prepend>姓名：</template></va-input
             >
+
             <va-input
               v-model="gender"
               class="info-input"
@@ -36,6 +44,7 @@
               :readonly="readonly"
               ><template #prepend> 性别： </template></va-input
             >
+
             <va-input
               v-model="contact"
               class="info-input"
@@ -44,34 +53,46 @@
               :readonly="readonly"
               ><template #prepend> 电话： </template></va-input
             >
+
           </div>
+
           <div class="info-container" v-else>
+
             <div class="info-line">
               <div class="label">编号：</div>
               <div class="info-value">{{ administratorId }}</div>
             </div>
+
             <div class="info-line">
               <div class="label">姓名：</div>
               <div class="info-value">{{ name }}</div>
             </div>
+
             <div class="info-line">
               <div class="label">性别：</div>
               <div class="info-value">{{ gender }}</div>
             </div>
+
             <div class="info-line">
               <div class="label">电话：</div>
               <div class="info-value">{{ contact }}</div>
             </div>
+
           </div>
+
           <div class="btns">
+
             <div class="btn-item" @click="edit">
               <i class="material-icons">{{ getIcon }}</i
               >&nbsp;&nbsp;{{ editStates }}
             </div>
+
             <div class="btn-item" @click="exit">
               <i class="material-icons">exit_to_app</i>&nbsp;&nbsp;退出
             </div>
+
           </div>
+
         </div>
       </div>
     </el-collapse-transition>
@@ -89,12 +110,24 @@ export default {
       src: require("@/assets/me.png"),
       src1: require("@/assets/icon11.png"),
       //管理员属性
+      //管理员id
       administratorId: "",
+
+      //管理员姓名
       name: "",
+
+      //管理员性别
       gender: "",
+
+      //管理员出生日期
       birthdate: "",
+
+      //管理员联系方式
       contact: "",
+
+      //管理员密码
       password: "",
+
 
       //控制修改的相关属性
       editStates: "编辑",
