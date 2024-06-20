@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <template>
   <header class="header">
     <va-icon name="menu" class="header-icon" @click="toggleSidebar"></va-icon>
@@ -68,44 +67,6 @@ export default {
   margin-right: 10px; /* 如果需要，可以添加边距 */
 }
 </style>
-=======
-<template>
-  <header class="header">
-    <va-icon name="menu" class="header-icon" @click="toggleSidebar"></va-icon>
-    <h1 class="main-title">济康同行</h1>
-    <PatientInfo v-if="role === '0'" />
-    <AdministratorInfo v-else />
-  </header>
-</template>
-
-<script>
-import { useStore } from "vuex";
-import PatientInfo from "./Info/PatientInfo.vue";
-import AdministratorInfo from "./Info/AdministratorInfo.vue";
-
-export default {
-  name: "CommonHeader",
-  components: {
-    PatientInfo,
-    AdministratorInfo,
-  },
-  setup() {
-    const title = "济康同行";
-    const store = useStore();
-    const role = sessionStorage.getItem('role');
-    const toggleSidebar = () => {
-      console.log(store.state.state.is_expand);
-      store.state.state.is_expand = !store.state.state.is_expand;
-    };
-
-    return {
-      title,
-      toggleSidebar,
-      role,
-    };
-  },
-};
-</script>
 
 <style scoped>
 .header {
@@ -138,4 +99,3 @@ export default {
   margin-right: 10px; /* 如果需要，可以添加边距 */
 }
 </style>
->>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492

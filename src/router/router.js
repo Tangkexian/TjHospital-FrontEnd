@@ -12,23 +12,12 @@ import AskAI from '../views/Patient/AskAI.vue'
 
 // 管理员页面
 import AdminMedicine from '../views/Admin/AdminMedicine.vue'
-<<<<<<< HEAD
 import AdminDoctor from '../views/Admin/AdminDoctor.vue'
 import AdminLayout from '../views/Admin/AdminLayout.vue'
 import AdminOrder from '../views/Admin/AdminOrder.vue'
 import AdminFeedback from '../views/Admin/AdminFeedback.vue'
 import AdminCheckin from '../views/Admin/AdminCheckin.vue'
 import MedicineCount from '../views/Admin/MedicineCount.vue'
-=======
-
-import AdminOrder from '../views/Admin/AdminOrder.vue'
-
-import AdminFeedback from '../views/Admin/AdminFeedback.vue'
-import AdminCheckin from '../views/Admin/AdminCheckin.vue'
-import MedicineCount from '../views/Admin/MedicineCount.vue'
-import AdminDoctor from '../views/Admin/AdminDoctor.vue'
-import AdminLayout from '../views/Admin/AdminLayout.vue'
->>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
 
 
 // import { use } from 'vue/types/umd'
@@ -112,55 +101,35 @@ const routes = [
     redirect: '/Admin/order',
     children: [
       {
-<<<<<<< HEAD
         path: 'order',
         name: 'AdminOrder',
         component: AdminOrder,
       },
       {
-=======
->>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
         path: 'medicine',
         name: 'AdminMedicine',
         component: AdminMedicine,
       },
-<<<<<<< HEAD
-=======
-
       {
         path: 'order',
         name: 'AdminOrder',
         component: AdminOrder,
       },
-
->>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
       {
         path: 'doctor',
         name: 'AdminDoctor',
         component: AdminDoctor,
       },
-<<<<<<< HEAD
-=======
-
->>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
       {
         path: 'feedback',
         name: 'AdminFeedback',
         component: AdminFeedback,
       },
-<<<<<<< HEAD
-=======
-
->>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
       {
         path: 'checkin',
         name: 'AdminCheckin',
         component: AdminCheckin,
       },
-<<<<<<< HEAD
-=======
-
->>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
       {
         path: 'MedicineCount',
         name: 'MedicineCount',

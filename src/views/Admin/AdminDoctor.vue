@@ -429,11 +429,6 @@ export default {
       }
       this.endTime.push("请选择结束时间");
     },
-
-<<<<<<< HEAD
-=======
-
->>>>>>> a48670de4bb17535ecc6db6322031e5c8fda3492
     newEndTime(newVal) {
       switch (newVal) {
         case "请选择结束时间":
